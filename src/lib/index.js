@@ -11,8 +11,8 @@
 //------------------------------------------------------------------------------
 
 const Promise = require("pinkie-promise")
-const shellQuote = require("shell-quote")
-const matchTasks = require("./match-tasks")
+// const shellQuote = require("shell-quote")
+// const matchTasks = require("./match-tasks")
 const readPackageJson = require("./read-package-json")
 const runTasksInParallel = require("./run-tasks-in-parallel")
 const runTasksInSequencial = require("./run-tasks-in-sequencial")
@@ -21,7 +21,7 @@ const runTasksInSequencial = require("./run-tasks-in-sequencial")
 // Helpers
 //------------------------------------------------------------------------------
 
-const ARGS_PATTERN = /\{(!)?([*@]|\d+)([^}]+)?}/g
+// const ARGS_PATTERN = /\{(!)?([*@]|\d+)([^}]+)?}/g
 
 /**
  * Converts a given value to an array.
@@ -29,12 +29,12 @@ const ARGS_PATTERN = /\{(!)?([*@]|\d+)([^}]+)?}/g
  * @param {string|string[]|null|undefined} x - A value to convert.
  * @returns {string[]} An array.
  */
-function toArray(x) {
-    if (x == null) {
-        return []
-    }
-    return Array.isArray(x) ? x : [x]
-}
+// function toArray(x) {
+//     if (x == null) {
+//         return []
+//     }
+//     return Array.isArray(x) ? x : [x]
+// }
 
 /**
  * Replaces argument placeholders (such as `{1}`) by arguments.
@@ -43,46 +43,46 @@ function toArray(x) {
  * @param {string[]} args - Arguments to replace.
  * @returns {string[]} replaced
  */
-function applyArguments(patterns, args) {
-    const defaults = Object.create(null)
-
-    return patterns.map(pattern => pattern.replace(ARGS_PATTERN, (whole, indirectionMark, id, options) => {
-        if (indirectionMark != null) {
-            throw Error(`Invalid Placeholder: ${whole}`)
-        }
-        if (id === "@") {
-            return shellQuote.quote(args)
-        }
-        if (id === "*") {
-            return shellQuote.quote([args.join(" ")])
-        }
-
-        const position = parseInt(id, 10)
-        if (position >= 1 && position <= args.length) {
-            return shellQuote.quote([args[position - 1]])
-        }
-
-        // Address default values
-        if (options != null) {
-            const prefix = options.slice(0, 2)
-
-            if (prefix === ":=") {
-                defaults[id] = shellQuote.quote([options.slice(2)])
-                return defaults[id]
-            }
-            if (prefix === ":-") {
-                return shellQuote.quote([options.slice(2)])
-            }
-
-            throw Error(`Invalid Placeholder: ${whole}`)
-        }
-        if (defaults[id] != null) {
-            return defaults[id]
-        }
-
-        return ""
-    }))
-}
+// function applyArguments(patterns, args) {
+//     const defaults = Object.create(null)
+//
+//     return patterns.map(pattern => pattern.replace(ARGS_PATTERN, (whole, indirectionMark, id, options) => {
+//         if (indirectionMark != null) {
+//             throw Error(`Invalid Placeholder: ${whole}`)
+//         }
+//         if (id === "@") {
+//             return shellQuote.quote(args)
+//         }
+//         if (id === "*") {
+//             return shellQuote.quote([args.join(" ")])
+//         }
+//
+//         const position = parseInt(id, 10)
+//         if (position >= 1 && position <= args.length) {
+//             return shellQuote.quote([args[position - 1]])
+//         }
+//
+//         // Address default values
+//         if (options != null) {
+//             const prefix = options.slice(0, 2)
+//
+//             if (prefix === ":=") {
+//                 defaults[id] = shellQuote.quote([options.slice(2)])
+//                 return defaults[id]
+//             }
+//             if (prefix === ":-") {
+//                 return shellQuote.quote([options.slice(2)])
+//             }
+//
+//             throw Error(`Invalid Placeholder: ${whole}`)
+//         }
+//         if (defaults[id] != null) {
+//             return defaults[id]
+//         }
+//
+//         return ""
+//     }))
+// }
 
 /**
  * Parse patterns.
@@ -93,12 +93,12 @@ function applyArguments(patterns, args) {
  * @param {string[]} args - Arguments to replace placeholders.
  * @returns {string[]} Parsed patterns.
  */
-function parsePatterns(patternOrPatterns, args) {
-    const patterns = toArray(patternOrPatterns)
-    const hasPlaceholder = patterns.some(pattern => ARGS_PATTERN.test(pattern))
-
-    return hasPlaceholder ? applyArguments(patterns, args) : patterns
-}
+// function parsePatterns(patternOrPatterns, args) {
+//     const patterns = toArray(patternOrPatterns)
+//     const hasPlaceholder = patterns.some(pattern => ARGS_PATTERN.test(pattern))
+//
+//     return hasPlaceholder ? applyArguments(patterns, args) : patterns
+// }
 
 /**
  * Converts a given config object to an `--:=` style option array.
@@ -143,9 +143,9 @@ function toConfigOptions(config) {
  * @param {string} name - A name.
  * @returns {number} The maximum length.
  */
-function maxLength(length, name) {
-    return Math.max(name.length, length)
-}
+// function maxLength(length, name) {
+//     return Math.max(name.length, length)
+// }
 
 //------------------------------------------------------------------------------
 // Public Interface
@@ -218,14 +218,15 @@ module.exports = function npmRunAll(
         packageConfig = null,
         silent = false,
         continueOnError = false,
-        printLabel = false,
+        // printLabel = false,
         printName = false,
-        arguments: args = [],
+        // arguments: args = [],
         race = false,
     } = {}
 ) {
     try {
-        const patterns = parsePatterns(patternOrPatterns, args)
+        // const patterns = parsePatterns(patternOrPatterns, args)
+        const patterns = patternOrPatterns
         if (patterns.length === 0) {
             return Promise.resolve(null)
         }
@@ -252,10 +253,26 @@ module.exports = function npmRunAll(
                 }
                 return readPackageJson()
             })
-            .then(({taskList, packageInfo}) => {    // eslint-disable-line no-shadow
-                const tasks = matchTasks(taskList, patterns)
-                const labelWidth = tasks.reduce(maxLength, 0)
+            .then(({packageInfo}) => {    // eslint-disable-line no-shadow
+                // const tasks = matchTasks(taskList, patterns)
+                // const labels = patterns.map(pattern => pattern.options.printLabel)
+                // const labelWidth = labels.reduce(maxLength, 0)
+                const tasks = patterns
                 const runTasks = parallel ? runTasksInParallel : runTasksInSequencial
+
+                // const tasks = patterns.map(pattern => (
+                //     Object.assign(pattern, {
+                //         options: Object.assign(pattern.options, {
+                //             labelState: {
+                //                 name: pattern.options.printLabel,
+                //                 enabled: true,
+                //                 width: labelWidth,
+                //                 lastPrefix: null,
+                //                 lastIsLinebreak: true,
+                //             },
+                //         }),
+                //     })
+                // ))
 
                 return runTasks(tasks, {
                     stdin,
@@ -263,12 +280,12 @@ module.exports = function npmRunAll(
                     stderr,
                     prefixOptions,
                     continueOnError,
-                    labelState: {
-                        enabled: printLabel,
-                        width: labelWidth,
-                        lastPrefix: null,
-                        lastIsLinebreak: true,
-                    },
+                    // labelState: {
+                    //     enabled: printLabel,
+                    //     width: labelWidth,
+                    //     lastPrefix: null,
+                    //     lastIsLinebreak: true,
+                    // },
                     printName,
                     packageInfo,
                     race,

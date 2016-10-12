@@ -1,3 +1,5 @@
+/* eslint-disable no-param-reassign */
+
 /**
  * @module run-task
  * @author Toru Nagashima
@@ -10,12 +12,12 @@
 // Requirements
 //------------------------------------------------------------------------------
 
-const chalk = require("chalk")
+// const chalk = require("chalk")
 const Promise = require("pinkie-promise")
 const {parse: parseArgs} = require("shell-quote")
-const padEnd = require("string.prototype.padend")
+// const padEnd = require("string.prototype.padend")
 const createHeader = require("./create-header")
-const createPrefixTransform = require("./create-prefix-transform-stream")
+// const createPrefixTransform = require("./create-prefix-transform-stream")
 const spawn = require("./spawn")
 
 //------------------------------------------------------------------------------
@@ -30,20 +32,20 @@ const spawn = require("./spawn")
  * @param {object} labelState - An label state for the transform stream.
  * @returns {stream.Writable} `source` or the created wrapped stream.
  */
-function wrapLabeling(taskName, source, labelState) {
-    if (source == null || !labelState.enabled) {
-        return source
-    }
-
-    const label = padEnd(taskName, labelState.width)
-    const color = source.isTTY ? chalk.gray : (x) => x
-    const prefix = color(`[${label}] `)
-    const stream = createPrefixTransform(prefix, labelState)
-
-    stream.pipe(source)
-
-    return stream
-}
+// function wrapLabeling(taskName, source, labelState) {
+//     if (source == null || !labelState.enabled) {
+//         return source
+//     }
+//
+//     const label = padEnd(taskName, labelState.width)
+//     const color = source.isTTY ? chalk.gray : (x) => x
+//     const prefix = color(`[${label}] `)
+//     const stream = createPrefixTransform(prefix, labelState)
+//
+//     stream.pipe(source)
+//
+//     return stream
+// }
 
 /**
  * Converts a given stream to an option for `child_process.spawn`.
@@ -97,7 +99,10 @@ function detectStreamKind(stream, std) {
  * @private
  */
 module.exports = function runTask(
-    task,
+    {
+        command,
+        options,
+    },
     {
         stdin,
         stdout: sourceStdout,
@@ -110,8 +115,14 @@ module.exports = function runTask(
 ) {
     let cp = null
     const promise = new Promise((resolve, reject) => {
-        const stdout = wrapLabeling(task, sourceStdout, labelState)
-        const stderr = wrapLabeling(task, sourceStderr, labelState)
+        const task = command
+        labelState = options.labelState || labelState
+        sourceStdout = options.stdout || sourceStdout
+        sourceStderr = options.sdtin || sourceStderr
+        // const stdout = wrapLabeling(labelState.name || task, sourceStdout, labelState)
+        // const stderr = wrapLabeling(labelState.name || task, sourceStderr, labelState)
+        const stdout = sourceStdout
+        const stderr = sourceStderr
         const stdinKind = detectStreamKind(stdin, process.stdin)
         const stdoutKind = detectStreamKind(stdout, process.stdout)
         const stderrKind = detectStreamKind(stderr, process.stderr)
@@ -125,7 +136,7 @@ module.exports = function runTask(
         cp = spawn(
             "npm",
             ["run-script"].concat(prefixOptions, parseArgs(task)),
-            {stdio: [stdinKind, stdoutKind, stderrKind]}
+            {stdio: [stdinKind, stdoutKind, stderrKind], cwd: options.cwd}
         )
 
         // Piping stdio.
