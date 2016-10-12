@@ -143,9 +143,9 @@ function toConfigOptions(config) {
  * @param {string} name - A name.
  * @returns {number} The maximum length.
  */
-// function maxLength(length, name) {
-//     return Math.max(name.length, length)
-// }
+function maxLength(length, name) {
+    return Math.max(name.length, length)
+}
 
 //------------------------------------------------------------------------------
 // Public Interface
@@ -218,7 +218,7 @@ module.exports = function npmRunAll(
         packageConfig = null,
         silent = false,
         continueOnError = false,
-        // printLabel = false,
+        printLabel = false,
         printName = false,
         // arguments: args = [],
         race = false,
@@ -226,7 +226,14 @@ module.exports = function npmRunAll(
 ) {
     try {
         // const patterns = parsePatterns(patternOrPatterns, args)
-        const patterns = patternOrPatterns
+        const patterns = patternOrPatterns.map(pattern => (
+            Object.assign(pattern, {
+                options: pattern.options || {
+                    label: {name: pattern.command},
+                },
+            })
+        ))
+
         if (patterns.length === 0) {
             return Promise.resolve(null)
         }
@@ -255,24 +262,25 @@ module.exports = function npmRunAll(
             })
             .then(({packageInfo}) => {    // eslint-disable-line no-shadow
                 // const tasks = matchTasks(taskList, patterns)
-                // const labels = patterns.map(pattern => pattern.options.printLabel)
-                // const labelWidth = labels.reduce(maxLength, 0)
-                const tasks = patterns
-                const runTasks = parallel ? runTasksInParallel : runTasksInSequencial
+                const labels = patterns.map(pattern => pattern.options.label.name)
+                const labelWidth = labels.reduce(maxLength, 0)
 
-                // const tasks = patterns.map(pattern => (
-                //     Object.assign(pattern, {
-                //         options: Object.assign(pattern.options, {
-                //             labelState: {
-                //                 name: pattern.options.printLabel,
-                //                 enabled: true,
-                //                 width: labelWidth,
-                //                 lastPrefix: null,
-                //                 lastIsLinebreak: true,
-                //             },
-                //         }),
-                //     })
-                // ))
+                const tasks = patterns.map(pattern => (
+                    Object.assign(pattern, {
+                        options: Object.assign(pattern.options, {
+                            labelState: {
+                                name: pattern.options.label.name,
+                                color: pattern.options.label.color,
+                                enabled: true,
+                                width: labelWidth,
+                                lastPrefix: null,
+                                lastIsLinebreak: true,
+                            },
+                        }),
+                    })
+                ))
+
+                const runTasks = parallel ? runTasksInParallel : runTasksInSequencial
 
                 return runTasks(tasks, {
                     stdin,
@@ -280,12 +288,12 @@ module.exports = function npmRunAll(
                     stderr,
                     prefixOptions,
                     continueOnError,
-                    // labelState: {
-                    //     enabled: printLabel,
-                    //     width: labelWidth,
-                    //     lastPrefix: null,
-                    //     lastIsLinebreak: true,
-                    // },
+                    labelState: {
+                        enabled: printLabel,
+                        width: labelWidth,
+                        lastPrefix: null,
+                        lastIsLinebreak: true,
+                    },
                     printName,
                     packageInfo,
                     race,
