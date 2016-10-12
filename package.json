@@ -22,6 +22,7 @@
     "build:jsdoc": "jsdoc -c jsdoc.json",
     "test": "npm run lint && nyc --require babel-register mocha \"test/*.js\" --reporter progress --timeout 60000",
     "watch": "mocha \"test/*.js\" --compilers js:babel-register --timeout 60000 --watch --growl",
+    "watch:babel": "babel src --watch --out-dir .",
     "coveralls": "nyc report --reporter=text-lcov | coveralls"
   },
   "dependencies": {
