@@ -133,7 +133,7 @@ module.exports = function runTask(
         // Execute.
         cp = spawn(
             "npm",
-            ["run-script"].concat(prefixOptions, parseArgs(task)),
+            prefixOptions.concat(parseArgs(task)),
             {stdio: [stdinKind, stdoutKind, stderrKind], cwd: options.cwd}
         )
 
@@ -155,7 +155,7 @@ module.exports = function runTask(
         })
         cp.on("close", (code) => {
             cp = null
-            resolve({task, code})
+            resolve({name: labelState.name || task, code})
         })
     })
 
