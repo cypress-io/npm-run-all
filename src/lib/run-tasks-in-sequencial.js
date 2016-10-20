@@ -29,7 +29,7 @@ const runTask = require("./run-task")
  * @private
  */
 module.exports = function runTasksInSequencial(tasks, options) {
-    const results = tasks.map(task => ({name: task, code: undefined}))
+    const results = tasks.map(task => ({name: task.options.labelState.name || task.command, code: undefined}))
     let errorResult = null
     let index = 0
 
