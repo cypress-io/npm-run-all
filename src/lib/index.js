@@ -265,20 +265,19 @@ module.exports = function npmRunAll(
                 const labels = patterns.map(pattern => pattern.options.label.name)
                 const labelWidth = labels.reduce(maxLength, 0)
 
-                const tasks = patterns.map(pattern => (
-                    Object.assign(pattern, {
-                        options: Object.assign(pattern.options, {
-                            labelState: {
-                                name: pattern.options.label.name,
-                                color: pattern.options.label.color,
-                                enabled: true,
-                                width: labelWidth,
-                                lastPrefix: null,
-                                lastIsLinebreak: true,
-                            },
-                        }),
-                    })
-                ))
+                const tasks = patterns.map(pattern => {
+                    if (printLabel === true) {
+                        pattern.options.labelState = {
+                            name: pattern.options.label.name,
+                            color: pattern.options.label.color,
+                            enabled: true,
+                            width: labelWidth,
+                            lastPrefix: null,
+                            lastIsLinebreak: true,
+                        }
+                    }
+                    return pattern
+                })
 
                 const runTasks = parallel ? runTasksInParallel : runTasksInSequencial
 
