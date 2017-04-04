@@ -30,7 +30,10 @@ const runTask = require("./run-task")
  */
 module.exports = function runTasksInParallel(tasks, options) {
     const taskPromises = tasks.map(task => runTask(task, options))
-    const results = tasks.map(task => ({name: task.options.labelState.name || task.command, code: undefined}))
+    const results = tasks.map(task => ({
+        name: task.options.labelState ? task.options.labelState.name || task.command : null,
+        code: undefined,
+    }))
     let aborted = false
 
     /**
