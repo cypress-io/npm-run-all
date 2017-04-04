@@ -1,6 +1,6 @@
 {
   "name": "@cypress/npm-run-all",
-  "version": "4.0.3",
+  "version": "4.0.4",
   "description": "A CLI tool to run multiple npm-scripts in parallel or sequential.",
   "main": "lib/index.js",
   "files": [
