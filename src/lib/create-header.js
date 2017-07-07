@@ -10,7 +10,7 @@
 // Requirements
 //------------------------------------------------------------------------------
 
-const chalk = require("chalk")
+const style = require("ansi-styles")
 
 //------------------------------------------------------------------------------
 // Public Interface
@@ -44,7 +44,7 @@ module.exports = function createHeader(nameAndArgs, packageInfo, isTTY) {
         },
         path: packagePath,
     } = packageInfo || {}
-    const color = isTTY ? chalk.styles.gray : {open: "", close: ""}
+    const color = isTTY ? style.gray : {open: "", close: ""}
 
     return `
 ${color.open}> ${packageName}@${packageVersion} ${name} ${packagePath}${color.close}
